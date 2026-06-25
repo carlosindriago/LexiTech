@@ -1,0 +1,59 @@
+# LexiTech local stack.
+#
+# Brings up the FastAPI backend and a Redis cache. The web-api container
+# waits for Redis to be healthy before starting; the API itself is
+# ready when /health returns 200.
+#
+# Usage:
+#   export OPENAI_API_KEY=*** compose up -d
+#   curl http://localhost:8000/health
+#   docker compose logs -f web-api
+#   docker compose down
+
+services:
+  web-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: lexitech/web-api:0.1.0
+    container_name: lexitech-web-api
+    ports:
+      - "8000:8000"
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY must be set}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-86400}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - "CMD"
+        - "python"
+        - "-c"
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3).read()"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: lexitech-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  redis_data:
+    name: lexitech-redis-data
