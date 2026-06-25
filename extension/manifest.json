@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "LexiTech",
+  "version": "0.1.0",
+  "description": "Explains English technical terms based on surrounding DOM context. Open-source, privacy-first (no API keys in the browser).",
+  "minimum_chrome_version": "102",
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "LexiTech"
+  }
+}
