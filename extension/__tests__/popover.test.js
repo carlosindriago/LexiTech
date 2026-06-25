@@ -146,3 +146,47 @@ describe('destroyPopover', () => {
     expect(document.getElementById(popover.HOST_ID)).toBeNull();
   });
 });
+
+describe('Speak button (Phase 6 wiring)', () => {
+  const sample = {
+    term: 'container',
+    part_of_speech: 'noun',
+    difficulty_level: 'intermediate',
+    definition: 'A standard unit of software.',
+    etymology: 'From contain + -er',
+    usage_example: 'Deploy as a container.',
+    synonyms: ['package'],
+    antonyms: [],
+    related_concepts: ['Docker'],
+    common_misuses: [],
+    memory_aid: 'Contains an app.',
+    audio_available: true,
+  };
+
+  test('invokes the onSpeak callback with the term when the button is clicked', () => {
+    const { shadow } = popover.createPopover();
+    const onSpeak = jest.fn();
+    popover.renderExplanation(shadow, sample, { onSpeak: onSpeak });
+    const btn = shadow.querySelector('.lex-speak');
+    expect(btn).not.toBeNull();
+    btn.click();
+    expect(onSpeak).toHaveBeenCalledTimes(1);
+    expect(onSpeak).toHaveBeenCalledWith('container');
+  });
+
+  test('disables the Speak button when no onSpeak callback is provided', () => {
+    const { shadow } = popover.createPopover();
+    popover.renderExplanation(shadow, sample);
+    const btn = shadow.querySelector('.lex-speak');
+    expect(btn).not.toBeNull();
+    expect(btn.disabled).toBe(true);
+  });
+
+  test('catches exceptions from the onSpeak callback (no silent failure)', () => {
+    const { shadow } = popover.createPopover();
+    const onSpeak = jest.fn(() => { throw new Error('boom'); });
+    popover.renderExplanation(shadow, sample, { onSpeak: onSpeak });
+    const btn = shadow.querySelector('.lex-speak');
+    expect(() => btn.click()).not.toThrow();
+  });
+});

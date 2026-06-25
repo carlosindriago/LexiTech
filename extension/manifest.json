@@ -21,6 +21,7 @@
       "js": [
         "lib/text-extraction.js",
         "lib/popover.js",
+        "lib/speech.js",
         "content.js"
       ],
       "run_at": "document_idle",

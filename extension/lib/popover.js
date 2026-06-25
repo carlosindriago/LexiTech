@@ -115,11 +115,12 @@
     popoverEl.appendChild(wrap);
   }
 
-  function renderExplanation(shadow, data) {
+  function renderExplanation(shadow, data, options) {
     if (!data || typeof data !== 'object') {
       renderError(shadow, 'invalid response from backend');
       return;
     }
+    var onSpeak = options && typeof options.onSpeak === 'function' ? options.onSpeak : null;
     var popoverEl = shadow.querySelector('.lex-popover');
     if (!popoverEl) return;
     popoverEl.textContent = '';
@@ -140,7 +141,7 @@
       popoverEl.appendChild(buildListSection('Common misuses', data.common_misuses));
     }
     popoverEl.appendChild(buildSection('Memory aid', data.memory_aid));
-    popoverEl.appendChild(buildActions(data));
+    popoverEl.appendChild(buildActions(data, onSpeak));
   }
 
   function buildHeader(data) {
@@ -191,14 +192,30 @@
     return section;
   }
 
-  function buildActions(data) {
+  function buildActions(data, onSpeak) {
     var actions = document.createElement('div');
     actions.className = 'lex-actions';
     var speak = document.createElement('button');
     speak.className = 'lex-speak';
     speak.type = 'button';
     speak.setAttribute('data-term', String(data.term || ''));
+    speak.setAttribute('data-lexitech-action', 'speak');
     speak.textContent = '🔊 Speak';
+    if (typeof onSpeak === 'function') {
+      speak.addEventListener('click', function () {
+        try {
+          onSpeak(String(data.term || ''));
+        } catch (err) {
+          if (typeof console !== 'undefined' && console.error) {
+            console.error('[LexiTech] speak handler threw:', String((err && err.message) || err));
+          }
+        }
+      });
+    } else {
+      // No handler wired — disable the button so it is not silently broken.
+      speak.disabled = true;
+      speak.setAttribute('title', 'Speech synthesis is not available in this context.');
+    }
     actions.appendChild(speak);
     return actions;
   }

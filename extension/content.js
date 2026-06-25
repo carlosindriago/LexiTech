@@ -30,6 +30,7 @@
 
   var extraction = window.LexiTextExtraction || {};
   var popover = window.LexiPopover || {};
+  var speech = window.LexiSpeech || {};
 
   var MAX_TERM_LENGTH = 100;
 
@@ -120,7 +121,11 @@
     var p = popover.createPopover();
     popover.renderLoading(p.shadow);
     askBackend(term, context)
-      .then(function (data) { popover.renderExplanation(p.shadow, data); })
+      .then(function (data) {
+        popover.renderExplanation(p.shadow, data, {
+          onSpeak: typeof speech.speakTerm === 'function' ? speech.speakTerm : null,
+        });
+      })
       .catch(function (err) {
         popover.renderError(p.shadow, String((err && err.message) || err));
       });
