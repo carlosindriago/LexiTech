@@ -1,0 +1,23 @@
+{
+  "name": "lexitech-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Chrome MV3 extension that explains English technical terms from DOM context.",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": [
+      "<rootDir>/__tests__/**/*.test.js",
+      "<rootDir>/**/*.test.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
+}
