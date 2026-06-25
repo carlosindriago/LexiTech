@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "LexiTech",
+  "version": "0.1.0",
+  "description": "Explains English technical terms based on surrounding DOM context. Open-source, privacy-first (no API keys in the browser).",
+  "minimum_chrome_version": "102",
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "lib/text-extraction.js",
+        "lib/popover.js",
+        "lib/speech.js",
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_title": "LexiTech"
+  }
+}
